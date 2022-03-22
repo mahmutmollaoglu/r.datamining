@@ -1,2 +1,5 @@
-# r.datamining
-Veri Madenciliği Doktora
+## Veri Madenciliği Doktora
+
+İstanbul Üniversitesi
+
+Ulaştırma ve Lojistik Fakültesi
