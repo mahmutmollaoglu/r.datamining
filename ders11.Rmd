@@ -1,0 +1,73 @@
+---
+title: "Veri Tipi Belirleme"
+author: "mahmut mollaoglu"
+date: '2022-03-22'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Çalışacağımız veri setinin içeri aktarılması için `read.csv` fonksiyonu kullanılır.
+
+```{r}
+dataset <- read.csv("https://bahadirfyildirim.com/media/documents/Fin500.csv")
+```
+
+Veriseti yüklendikten sonra veriseti içeriğini kontrol etmek üzere 'head()' ve 'tail()' fonksiyonları kullanılır.
+
+```{r}
+head(dataset,15) #Verisetinin ilk 15 satırını göster.
+tail(dataset,15) #Verisetinin son 15 satırını göster.
+```
+
+Yüklenen verisetinin yapısını öğrenmek için 'str()' fonksiyonu kullanılır.
+
+```{r}
+str(dataset) #Verisetinin yapısını gösterir. Verisetine ait yapıların karakter mi yoksa sayısal mı olduğunu gösterir.
+```
+
+Yüklenen verisetinin özetini görmek için 'summary()' fonksiyonunu kullanırız.
+
+```{r}
+summary(dataset) #Verisetinin özetini gösterir. Verisetine ait değişkenlerin her birisine ait minimum, maksimum vb. istatistiki verilerini verir.
+```
+
+Yüklenen veri setindeki değişkenlerin bir kısmı yanlış hedeflenmiştir. Bu yüzden ilk olarak verinin yapısının değiştirlmesi adına farklı düzenlemeleri yapılmalıdır. Verilerin düzenlenmesi için ' <- as.factor()' komutu kullanılır.
+
+```{r}
+dataset$Industry <- as.factor(dataset$Industry) #Yüklenen verisetindeki değerlerin numerikten faktöre çevrilmesini sağlar.
+```
+
+Aynı işlem Inception ve State değişkenleri için de yapılır.
+
+```{r}
+dataset$Inception <- as.factor(dataset$Inception)
+dataset$State <- as.factor(dataset$State) #Yüklenen verisetindeki değişkenlerin numerikten faktöre çevrilmesini sağlar.
+```
+
+Verisetindeki Expenses değişkeninde bulunan dollars ifadesi gereksiz görüldüğü için boşluğa dönüşütürülmüştür. Bunun için 'gsub' komutu kullanılmıştır.
+
+```{r}
+dataset$Expenses <- gsub(" Dollars", "", dataset$Expenses)
+dataset$Expenses <- gsub(",", "", dataset$Expenses)
+```
+
+Verisetindeki growth değişkenine ait yüzde ifadelerin kaldırılması ve değişkenin faktörden numeriğe çevrilmesi için aşağıdaki fonksiyon kullanılır.
+
+```{r}
+dataset$Growth <- as.numeric(gsub("%", "", dataset$Growth))
+```
+
+R programlama dilinde herhangi bir ifadeye sahip olmayan $ ifadesinin bir anlam ifade etmediğini belirlemek adına başına \\ fonksiyonu kullanılır. 
+
+```{r}
+dataset$Revenue <- gsub("\\$", "", dataset$Revenue)
+```
+
+Yapılan düzenlemeler sonrasında verisetinin yapısını aşağıdaki komutla ortaya çıkartabiliriz.
+
+```{r}
+str(dataset)
+```
