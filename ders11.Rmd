@@ -222,3 +222,68 @@ mea_rev <- mean(dataset[, "Revenue"], na.rm = T)
 dataset[is.na(dataset$Revenue) & dataset$Industry == "Construction", "Revenue"] <- mea_rev
 ``` 
 
+
+Çalışılan veri setinde daha anlamlı bir model oluşturmak ve onu değerlendirmek için 'caret' paketi yüklenir. Yüklenmesi için aşağıdaki komut yüklenir.
+
+```{r}
+library(caret)
+```
+
+```{r}
+summary(iris[,1:4])
+```
+
+Iris veri seti içerisindeki 1 ve 4. sütun aralığını verir.
+
+Sonrasında veri pre-process (ölçekleme, merkezleme) sürecine alınır. Bu süreç aşağıdaki gibi gösterilebilir.
+
+```{r}
+preprocessParams <- preProcess(iris[,1:4], method=c("scale"))
+```
+
+Yukarıda verilen 'scale' fonksiyonu her bir gözlemi o serinin standart sapmasına oranlar.
+
+Parametrelerin genel özetinin kullanıldığı komut aşağıda verilmiştir.
+
+```{r}
+print(preprocessParams)
+```
+
+Birinci ve dördüncü sütun aralığını ölçekliye çevirmek için aşağıdaki komut kullanılır.
+
+```{r}
+scaled <- predict(preprocessParams, iris[,1:4])
+```
+
+Sonrasında dönüştürülen veri setinin özeti alınır.
+
+```{r}
+summary(scaled)
+```
+
+Aşağıda belirtilecek olan 'center' fonksiyonu ise her bir değişkenin ortalamalarından çıkartılmış hâlini bize verir.
+
+```{r}
+preProcessparams <- preProcess(iris[, 1:4] ,method=c("center","scale"))
+```
+
+Bu parametlerelerin normalizasyon işlemi ise aşağıdaki gibi gerçekleştirilebilir.
+
+```{r}
+normalized <- predict(preprocessParams, iris[, 1:4])
+```
+
+Veri setinin pre-process parametlerelerinin hesaplanması içinse aşağıdaki fonksiyon kullanılır.
+
+```{r}
+preprocessParams <- preProcess(iris[, 1:4], method=c("YeoJohnson")) print(preprocessParams)
+yeojohnson <- predict(preProcessparams, iris[, 1:4])
+```
+
+Son olarak düzenlenen veri setinin özeti alınır.
+```{r}
+summary(yeojohnson)
+```
+
+#Bu hafta resampling methodlardan bahsedilecektir.
+#Bahsedilecek konular aşağıda verilmiştir.
