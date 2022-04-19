@@ -71,3 +71,154 @@ Yapılan düzenlemeler sonrasında verisetinin yapısını aşağıdaki komutla 
 ```{r}
 str(dataset)
 ```
+
+Missing Value değerleriyle ilgilenileceğinden dolayı `library(Amelia)` paketini çağırılır.
+
+```{r}
+library(Amelia)
+```
+
+Verisetinin kayıp değerlerinin haritasını çıkartmak için 'missmap()' komutu uygulanır.
+
+```{r}
+missmap(dataset)
+```
+
+Verisetinin kaç satır ve kaç sütundan oluştuğunu görebilmek adına 'dim()' komutu uygulanır.
+
+```{r}
+dim(dataset)
+```
+
+Verisetimizde istediğimiz satır ve sütunlara erişebilmek için `dataset[]` komutu uygulanır.
+
+```{r}
+dataset[4,5] #4.satır 5.sütun
+dataset[3, ] #3.satırın tamamı
+dataset[ ,2] #2.sütunun tamamı
+```
+
+Verisetimizin uygun olmayan değer (NA) içerip içermediğini görebilmek için `complete.cases()` komutu uygulanır. Verisetimiz tam yani NA değer yoksa özette TRUE, NA değer varsa FALSE olarak geri dönüş vermektedir.
+
+```{r}
+complete.cases(dataset)
+```
+
+Verisetindeki NA değerlerinin yer aldığı satırı göstermek adına;
+
+```{r}
+dataset[!complete.cases(dataset), ] # ünlem işareti ! ile incomplete olanları getirilir.
+```
+
+Verisetimizde geliri 9 milyon olanları getirmek için aşağıdaki komut kullanılır.
+
+```{r}
+dataset$Revenue == 9746272
+```
+
+Verisetinde geliri 9 milyon olan SATIRI getirmek için aşağıdaki komut kullanılır.
+
+```{r}
+dataset[dataset$Revenue == 9746272, ]
+```
+
+True'ların yanında NA'lar duruyor. Bundan kaçınmak için `which()` komutunu kullanılır.. Bu komut uygulaması aşağıdaki gibidir;
+
+```{r}
+which(dataset$Revenue == 9746272)
+```
+
+Verisetimizde NA değeri olan satırları getirmek için aşağıdaki komut uygulanır.
+
+```{r}
+dataset[is.na(dataset$Expenses), ]
+```
+
+Verisetinde çalışan sayısı 45 olan satırı getirmek için aşağıdaki komut kullanılır.
+
+```{r}
+dataset[which(dataset$Employees == 45), ]
+```
+
+verisetimizi yedeklemek için `<-` komutu kullanılır.
+
+```{r}
+backup <- dataset
+```
+
+Verisetimizde complete olanlar ile tekrar veriseti oluşturmak adına aşağıdaki komutu kullanırız.
+
+```{r}
+dataset <- dataset[complete.cases(dataset), ]
+```
+
+Verisetindeki satır numaralarını görmek için `row.names()` komutu kullanılır.
+
+```{r}
+row.names(dataset)
+```
+
+Verisetimizde 1'den başlayarak tekrar satır numarası atamak için `1:nrow()` komutu kullanılır.
+
+```{r}
+dataset <- 1:nrow(dataset)
+```
+
+Kayıp verilerin değiştirilmesi için ilk olarak State sütununda yer alan NA değerleri çağrılır. Daha sonra da NA verileri değiştirilir.
+
+```{r}
+dataset[!complete.cases(dataset)]
+dataset[is.na(dataset$State), ]
+dataset[is.na(dataset$State) & dataset$City == "New York", ]
+dataset[is.na(dataset$State) & dataset$City == "New York", "State"] <- "NY" 
+
+dataset[is.na(dataset$State) & dataset$city == "San Francisco"]
+dataset[is.na(dataset$State) & dataset$City == "San Francisco", "State"] <- "CA"
+```
+
+Verisetimizde NA değeri olan sütunları tespit ettikten sonra "Employees" sütununda yer alan NA değerleri yerine aynı sütundaki meadian değerini atadık. "Employees" sütunu ile "Industry" sütununda "Retail" olanları atanır. Daha sonra "Industry" sütununda "Financial Services" olanları atanır.
+
+```{r}
+summary(dataset$Employees)
+dataset[is.na(dataset$Employees), ]
+
+median(dataset[, "Employees"]) # NA baskın olduğu için sonuç NA çıktı bundan kurultmak için aşağıda verilen komut girilmiştir. 
+median(dataset[, "Employees"], na.rm = T) #NA ya median değerini ata NA'yı dikkate alma
+med_emp_ret <- median(dataset[dataset$Industry == "Retail", "Employees"], na.rm = T)
+
+dataset[is.na(dataset$Employees) & dataset$Industry == "Retail", ]
+dataset[is.na(dataset$Employees) & dataset$Industry == "Retail", "Employees"] <- med_emp_ret
+
+med_emp_finservices <- median(dataset[dataset$Industry == "Financial Services", "Employees"], na.rm = T) 
+dataset[is.na(dataset$Employees) & dataset$Industry == "Financial Services", "Employees"] <- med_emp_finservices
+```
+
+Expenses kolonunda NA olan değerler "Revenue"'den "Profit"i çıkartarak elde ederiz.
+
+```{r}
+summary(dataset)
+head(dataset,25)
+
+dataset[is.na(dataset$Expenses), ]
+dataset[is.na(dataset$Expenses) & !is.na(dataset$Revenue), ] #Revenue boş olmaması lazım
+dataset[is.na(dataset$Expenses) & !is.na(dataset$Revenue), "Expenses" ] #expenses kolonunu verecek
+
+dataset[is.na(dataset$Expenses) & !is.na(dataset$Revenue), "Expenses" ] <- dataset[is.na(dataset$Expenses) & !is.na(dataset$Revenue), "Revenue" ] - dataset[is.na(dataset$Expenses) & !is.na(dataset$Revenue), "Profit" ] 
+```
+
+"Revenue" kolonunda NA olan değerleri kolonun ortalamasını NA olan değerlere atayarak elde ederiz.
+
+```{r}
+summary(dataset)
+head(dataset,25)
+
+dataset[is.na(dataset$Revenue), ]
+dataset[is.na(dataset$Revenue) & dataset$Industry == "Construction", ] #Revenue NA olan Industry'ler Construction
+
+mean(dataset[, "Revenue"])
+mean(dataset[, "Revenue"], na.rm = T)
+mea_rev <- mean(dataset[, "Revenue"], na.rm = T)
+
+dataset[is.na(dataset$Revenue) & dataset$Industry == "Construction", "Revenue"] <- mea_rev
+``` 
+
