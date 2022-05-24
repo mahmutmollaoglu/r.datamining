@@ -330,10 +330,83 @@ data(iris)
 train_control <- trainControl (method="repeatedcv", number=10, repeats=3)
 ```
 
+Bu haftada veri setinin regresyon modeline uygun olup olmadığı test edilmiştir.
+Verisetinin regresyon modeli uygun olup olmadığını ile eğrisel mi yoksa doğrusal mı olduğu `scatter.smooth()` kodu ile gösterilmiştir. Kodun yazılımı aşağıdaki gibi gösterilebilir.
 
+```{r}
+scatter.smooth(x=cars$speed, y=cars$dist, main="Saçılma Diyagramı")
+```
 
+Korelasyon üretmek için `cor()` kodu kullanılmıştır.
 
+```{r}
+cor(cars$speed, cars$dist)
+```
 
+Regresyon modelini oluşturmak için `lm()` fonksiyonu kullanılmıştır ve bu 'GenelModel'e atanmıştır. Bunun için yapılan kod fonksiyonu aşağıdaki gibi gösterilebilir.
 
+```{r}
+GenelModel <- lm(dist ~ speed, data=cars) # lm(bağımlı ve bağımsız değişken) (lm, bağımlı değişken, bağımsız değişken , dataset)
+```
 
+GenelModel içerisindeki tahmini 'distance'ı almak için `print()` ve daha sonra GenelModel'in özetini görmek için `summary()` komutunu kullanılmıştır.
+
+```{r}
+print(GenelModel)
+summary(GenelModel)
+```
+
+Bilgi kriterlerinin bulunabilmesi için `AIC()` ve `BIC()` komutları kullanılmıştır.
+
+```{r}
+AIC(GenelModel) 
+BIC(GenelModel)
+```
+
+Veri setinden rastgele değerler oluşturabilmek için `set.seed()` fonksiyonu kullanılmıştır. Aşağıda belirtilen 100 sayısı belirli bir veri seti kümesini ifade eder. Başka bir bilgisayarda yine aynı sayıyla aynı veri kümesi elde edilir. Ancak verilen sayı değişirse rassal değerlerde de değişkenlik oluşur.
+
+```{r}
+set.seed(100)
+```
+
+Satır index değerleri `sample()` fonksiyonu ile oluşturulmuş ve değerler 'trainingRowIndex'e atanmıştır.
+
+```{r}
+trainingRowIndex <- sample(1:nrow(cars), 0.8*nrow(cars)) # 1'den n row'a kadar verinin yüzde 80'ini rassal olarak seçtik.
+```
+
+cars verisetindeki daha önce oluşturduğumuz trainingRowIndex satırı ve tüm sütunu 'trainingData'ya atanmıştır.
+
+```{r}
+trainingData <- cars[trainingRowIndex, ] #satırlarını al ve tüm sütunlarını al
+```
+
+'testData'ya 'trainingRowIndex'in tersi atanmıştır.
+
+```{r}
+testData <- cars[-trainingRowIndex, ]
+```
+
+Tekrar Regresyon modeli oluşturmak için `lm()` fonksiyonu kullanılmış ve bu 'lmMod'a atanmıştır. Daha sonra testData'sının tahmini değerlerini `predict()` komutu ile alınmış ve `print()` `summary()` ile `ÀIC()` komutları ile verisinin içeriğine bakılmıştır. Bu işlemler için kullanılan fonksiyonlar aşağıdaki gibi verilmiştir.
+
+```{r}
+lmMod <- lm(dist ~ speed, data=trainingData)
+distPred <- predict(lmMod, testData) 
+print(distPred)
+summary(lmMod)
+AIC(lmMod)
+```
+
+Gözlemlenen ve tahmin edilen verileri birleştiren komuta (bind) adı verilir. Yani iki vektörü birleştirir (bind) ve yeni bir vektör oluşturur. Bunun için `data.frame()` fonksiyonundan yararlanılmıştır. Ve yeni bulunan vektör 'gercek_tahmin'e atanmıştır.
+
+```{r}
+gercek_tahmin <- data.frame(cbind(gercek=testData$dist, tahmin=disttahmin)) 
+```
+
+mape (mean absolute percentage error) yani gerçek değer ie tahmini değer arasındaki farkın mutlak değerini alarak gerçek değere oranlanır. Diğer bir deyişle hata payını alarak gerçek değere oranlanır. Ve `print()` komutu ile çıktısını alınır.
+
+```{r}
+mape <- mean(abs(actuals_preds$tahmin - actuals_preds$gercek)/actuals_preds$gercek)
+print(mape)
+```
 
